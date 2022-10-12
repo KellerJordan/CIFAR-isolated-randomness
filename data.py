@@ -47,8 +47,8 @@ def get_loaders(order_seed, aug_seed, epochs):
     normalize = T.Normalize(np.array(CIFAR_MEAN)/255, np.array(CIFAR_STD)/255)
 
     train_transform = T.Compose([
-            T.RandomCrop(32, padding=4),
             T.RandomHorizontalFlip(),
+            T.RandomCrop(32, padding=4),
             T.ToTensor(),
             normalize,
         ])
