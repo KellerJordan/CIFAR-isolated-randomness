@@ -6,29 +6,29 @@ import subprocess
 import multiprocessing as mp
 import pandas as pd
 
-def run_one(proc_i, args):
+def run_one(gpu, args):
     model_s, order_s, aug_s = args
     script_path = './train.py'
     cmd = 'python %s --model_seed %d --order_seed %d --aug_seed %d' % (script_path, model_s, order_s, aug_s)
     
     env = os.environ.copy()
-    env['CUDA_VISIBLE_DEVICES'] = str(proc_i)
+    env['CUDA_VISIBLE_DEVICES'] = str(gpu)
     subprocess.run(cmd.split(), env=env)
 
 def get_args_list():
     seeds_l = []
-    for s1 in range(10):
-        for s2 in range(10):
-            for s3 in range(10):
-                seeds_l.append((s1, s2, s3))
+    for sm in range(1000):
+        for so in range(2):
+            for sa in range(2):
+                seeds_l.append((sm, so, sa))
     random.shuffle(seeds_l)
     return seeds_l
 
-def run_all(proc_i):
+def run_all(gpu):
     for i, args in enumerate(arg_list):
-        if i % 8 == proc_i:
+        if i % 8 == gpu:
             print(args)
-            run_one(proc_i, args)
+            run_one(gpu, args)
 
 if __name__ == '__main__':
     arg_list = get_args_list()

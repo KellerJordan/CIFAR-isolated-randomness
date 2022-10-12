@@ -1,4 +1,5 @@
 import os
+import uuid
 import pickle
 import hashlib
 import argparse
@@ -86,14 +87,14 @@ if __name__ == '__main__':
               'order_seed': args.order_seed,
               'aug_seed': args.aug_seed}
     stats = run_training(**kwargs)
+    log = {**kwargs, **stats}
+    print('correct=%d' % log['correct'])
 
-    log_dir = './logs'
-    os.makedirs(log_dir, exist_ok=True)
-    s = ','.join(str(a) for a in [args.model_seed, args.order_seed, args.aug_seed])
-    arg_hash = hashlib.sha256(s.encode('utf-8')).hexdigest()
-    log_path = os.path.join(log_dir, '%s.pkl' % arg_hash)
-    log_d = {**kwargs, **stats}
-    print('correct=%d' % log_d['correct'])
+    os.makedirs('./logs', exist_ok=True)
+    log_path = os.path.join('./logs', str(uuid.uuid4())+'.pkl')
+    #s = ','.join(str(a) for a in [args.model_seed, args.order_seed, args.aug_seed])
+    #arg_hash = hashlib.sha256(s.encode('utf-8')).hexdigest()
+    #log_path = os.path.join(log_dir, '%s.pkl' % arg_hash)
     with open(log_path, 'wb') as f:
-        pickle.dump(log_d, f)
+        pickle.dump(log, f)
 

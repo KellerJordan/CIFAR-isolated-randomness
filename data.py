@@ -62,7 +62,7 @@ def get_loaders(order_seed, aug_seed, epochs):
                                                shuffle=False, num_workers=8)
     test_dset = torchvision.datasets.CIFAR10(root='/tmp', train=False,
                                              download=True, transform=test_transform)
-    test_loader = torch.utils.data.DataLoader(test_dset, batch_size=BATCH_SIZE,
+    test_loader = torch.utils.data.DataLoader(test_dset, batch_size=2000,
                                               shuffle=False, num_workers=8)
     return train_loader, test_loader
 
