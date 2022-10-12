@@ -1,3 +1,5 @@
+import random
+import numpy as np
 import torch
 
 # "ResNet-9" model from https://docs.ffcv.io/ffcv_examples/cifar10.html
@@ -42,5 +44,16 @@ def create_model():
         Mul(0.2)
     )
     model = model.to(memory_format=ch.channels_last)
+    return model
+
+def set_seed(seed):
+    seed = int(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+
+def get_model(model_seed):
+    set_seed(model_seed)
+    model = create_model()
     return model
 

@@ -1,5 +1,4 @@
 import os
-import random
 import pickle
 import hashlib
 import argparse
@@ -12,97 +11,23 @@ from torch import nn
 from torch.optim import SGD, lr_scheduler
 from torch.cuda.amp import GradScaler, autocast
 import torchvision
-import torchvision.transforms as T
 
-from model import create_model
-
-BATCH_SIZE = 512 
-
-def set_seed(seed):
-    seed = int(seed)
-    torch.manual_seed(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-
-class DeterministicCIFAR(torch.utils.data.Dataset):
-    def __init__(self, order_seed, aug_seed, epochs, transform):
-        self.dset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                                 download=True, transform=None)
-        # generate order of data during training using order_seed
-        set_seed(order_seed)
-        self.data_order = []
-        for _ in range(epochs):
-            epoch_order = list(range(50000))
-            random.shuffle(epoch_order)
-            self.data_order += epoch_order
-        # generate seeds for each image augmentation using aug_seed
-        num_iters = 50000*epochs
-        set_seed(aug_seed)
-        self.aug_seeds = np.random.randint(2**32, size=num_iters)
-
-        self.transform = transform
-            
-    def set_aug_seed(self, idx):
-        epoch_i = idx // 50000
-        data_i = self.data_order[idx]
-        iter_i = 50000 * epoch_i + data_i
-        seed = int(self.aug_seeds[iter_i])
-        set_seed(seed)
-
-    def __len__(self):
-        return len(self.data_order)
-
-    def __getitem__(self, idx):
-        img, lab = self.dset[self.data_order[idx]]
-        self.set_aug_seed(idx)
-        return self.transform(img), lab 
-
-def get_loaders(order_seed, aug_seed, epochs):
-    CIFAR_MEAN = [125.307, 122.961, 113.8575]
-    CIFAR_STD = [51.5865, 50.847, 51.255]
-    normalize = T.Normalize(np.array(CIFAR_MEAN)/255, np.array(CIFAR_STD)/255)
-
-    train_transform = T.Compose([
-            T.RandomCrop(32, padding=4),
-            T.RandomHorizontalFlip(),
-            T.ToTensor(),
-            normalize,
-        ])
-    test_transform = T.Compose([
-        T.ToTensor(),
-        normalize,
-    ])
-
-    train_dset = DeterministicCIFAR(order_seed, aug_seed, epochs, transform=train_transform)
-    train_loader = torch.utils.data.DataLoader(train_dset, batch_size=BATCH_SIZE,
-                                               shuffle=False, num_workers=8)
-    test_dset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                             download=True, transform=test_transform)
-    test_loader = torch.utils.data.DataLoader(test_dset, batch_size=BATCH_SIZE,
-                                              shuffle=False, num_workers=8)
-
-    return train_loader, test_loader
-
-def get_model(model_seed):
-    set_seed(model_seed)
-    model = create_model().cuda()
-    return model
+from model import get_model
+from data import get_loaders
 
 def run_training(model_seed, order_seed, aug_seed):
     ## training hyperparams and setup
-    EPOCHS = 50
+    EPOCHS = 64
     train_loader, test_loader = get_loaders(order_seed, aug_seed, epochs=EPOCHS)
 
-    ne_iters = int(np.ceil(50000 / BATCH_SIZE))
-    lr_schedule = np.interp(np.arange((EPOCHS+1) * ne_iters),
-                            [0, 5*ne_iters, EPOCHS*ne_iters],
-                            [0, 1, 0])
+    n_iters = len(train_loader)
+    lr_schedule = np.interp(np.arange(1+n_iters), [0, n_iters], [1, 0]) 
 
-    model = get_model(model_seed)
-    scaler = GradScaler()
+    model = get_model(model_seed).cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.5, momentum=0.9, weight_decay=5e-4)
-    loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_schedule.__getitem__)
+    scaler = GradScaler()
+    loss_fn = nn.CrossEntropyLoss()
 
     ## train
     model.train()
