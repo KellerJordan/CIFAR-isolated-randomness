@@ -17,10 +17,11 @@ def run_one(gpu, args):
 
 def get_args_list():
     seeds_l = []
-    for sm in range(1000):
-        for so in range(2):
-            for sa in range(2):
-                seeds_l.append((sm, so, sa))
+    for s in range(4000):
+        seeds_l.append((s, s, s))
+        seeds_l.append((s, 0, 0))
+        seeds_l.append((0, s, 0))
+        seeds_l.append((0, 0, s))
     random.shuffle(seeds_l)
     return seeds_l
 
