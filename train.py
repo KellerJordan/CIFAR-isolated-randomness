@@ -33,8 +33,8 @@ def run_training(model_seed, order_seed, aug_seed):
     ## train
     model.train()
     losses = []
-    for batch in tqdm(train_loader): 
-        inputs, labels = batch
+    it = tqdm(train_loader)
+    for inputs, labels in it: 
         with autocast():
             outputs = model(inputs.cuda())
             loss = loss_fn(outputs, labels.cuda())
@@ -53,10 +53,9 @@ def run_training(model_seed, order_seed, aug_seed):
     correct = 0 
     outputs_l = []
     with torch.no_grad():
-        for i, batch in enumerate(test_loader):
-            inputs, labels = batch
+        for inputs, labels in test_loader:
             outputs = model(inputs.cuda())
-            outputs_l.append(outputs)
+            outputs_l.append(outputs.clone())
             pred = outputs.argmax(dim=1).cpu()
             correct += (labels == pred).float().sum().item()
     outputs = torch.cat(outputs_l).cpu().numpy()
