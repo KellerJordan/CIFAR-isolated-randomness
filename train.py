@@ -8,6 +8,9 @@ import torch
 from tqdm import tqdm
 
 import torch
+torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
+#torch.use_deterministic_algorithms(True, warn_only=True)
 from torch import nn
 from torch.optim import SGD, lr_scheduler
 import torchvision
@@ -17,7 +20,7 @@ from data import get_loaders
 
 def run_training(model_seed, order_seed, aug_seed):
     ## training hyperparams and setup
-    EPOCHS = 128
+    EPOCHS = 2
     train_loader, test_loader = get_loaders(order_seed, aug_seed, epochs=EPOCHS)
 
     n_iters = len(train_loader)
