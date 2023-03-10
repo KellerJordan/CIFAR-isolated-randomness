@@ -10,6 +10,7 @@ from tqdm import tqdm
 import torch
 from torch import nn
 from torch.optim import SGD, lr_scheduler
+from torch.cuda.amp import GradScaler, autocast
 import torchvision
 
 from model import get_model
@@ -17,13 +18,14 @@ from data import get_loaders
 
 def run_training(model_seed, order_seed, aug_seed):
     ## training hyperparams and setup
-    EPOCHS = 128
+    EPOCHS = 2
     train_loader, test_loader = get_loaders(order_seed, aug_seed, epochs=EPOCHS)
 
     n_iters = len(train_loader)
     lr_schedule = np.interp(np.arange(1+n_iters), [0, n_iters], [1, 0]) 
 
     model = get_model(model_seed).cuda()
+    scaler = GradScaler()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.5, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_schedule.__getitem__)
     loss_fn = nn.CrossEntropyLoss()
@@ -33,12 +35,13 @@ def run_training(model_seed, order_seed, aug_seed):
     losses = []
     it = tqdm(train_loader)
     for inputs, labels in it: 
-        outputs = model(inputs.cuda())
-        loss = loss_fn(outputs, labels.cuda())
+        with autocast():
+            outputs = model(inputs.cuda())
+            loss = loss_fn(outputs, labels.cuda())
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         loss_i = loss.item()
         losses.append(loss_i)
@@ -49,7 +52,7 @@ def run_training(model_seed, order_seed, aug_seed):
     model.eval()
     correct = 0 
     outputs_l = []
-    with torch.no_grad():
+    with torch.no_grad(), autocast():
         for inputs, labels in test_loader:
             outputs = model(inputs.cuda())
             outputs_l.append(outputs.clone())
