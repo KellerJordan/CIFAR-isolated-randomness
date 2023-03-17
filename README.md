@@ -8,7 +8,7 @@ We split the random seed into three:
 * The `aug_seed`, which controls random image augmentations. This is set so that with a fixed `aug_seed`, the model will see the same set of augmented images in each epoch, with only their order being controlled by `order_seed`.
 
 ## Performance
-* On a machine with 8x NVIDIA A100s, I get 400 50-epoch trainings/hour
+* With 8x NVIDIA A100s, I get 400 50-epoch trainings/hour
 * The average test accuracy is 94.10% (+/- 0.01%).
 
 ## Commands
