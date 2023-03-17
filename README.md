@@ -17,8 +17,9 @@ To do a single training:
 python train.py --model_seed=42 --order_seed=42 --aug_seed=42
 >>> correct=9364
 ```
+(Your results for this seed may differ depending on torch version, hardware, etc., but should be the same every run.)
 
-To run many training over a sweep of seeds:
+To run many trainings over a sweep of seeds:
 ```
 python many_train.py
 ```
