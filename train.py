@@ -1,7 +1,6 @@
 import os
 import uuid
 import pickle
-import hashlib
 import argparse
 import numpy as np
 import torch
@@ -91,9 +90,6 @@ if __name__ == '__main__':
 
     os.makedirs('./logs', exist_ok=True)
     log_path = os.path.join('./logs', str(uuid.uuid4())+'.pkl')
-    #s = ','.join(str(a) for a in [args.model_seed, args.order_seed, args.aug_seed])
-    #arg_hash = hashlib.sha256(s.encode('utf-8')).hexdigest()
-    #log_path = os.path.join(log_dir, '%s.pkl' % arg_hash)
     with open(log_path, 'wb') as f:
         pickle.dump(log, f)
 
