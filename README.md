@@ -15,7 +15,7 @@ We split the random seed into three:
 To do a single training:
 ```
 python train.py --model_seed=42 --order_seed=42 --aug_seed=42
->>> correct=9364
+>>> correct=9419
 ```
 (Your results for this seed may differ depending on torch version, hardware, etc., but should be the same every run.)
 
