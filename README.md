@@ -2,7 +2,7 @@
 
 This repo provides a CIFAR-10 training script with granular control over sources of randomness.
 
-We split the random seed into three:
+We split the random seed into three parts:
 * The `model_seed`, which controls the model initialization.
 * The `order_seed`, which controls the order that data appears during training.
 * The `aug_seed`, which controls random image augmentations. This is set so that with a fixed `aug_seed`, the model will see the same set of augmented images in each epoch, with only their order being controlled by `order_seed`.
