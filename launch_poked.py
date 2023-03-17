@@ -74,7 +74,7 @@ def run_training(poke_step, epochs, seed, train_loader0):
 
 if __name__ == '__main__':
     seed = 42
-    epochs = 6
+    epochs = 32
     train_loader, test_loader = get_loaders(seed, seed, epochs=epochs)
     # Pre-generate all training batches, for efficiency sake.
     train_loader0 = [batch for batch in tqdm(train_loader)]
