@@ -10,6 +10,8 @@ from tqdm import tqdm
 import torch
 torch.backends.cudnn.benchmark = False
 torch.backends.cudnn.deterministic = True
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
 #torch.use_deterministic_algorithms(True, warn_only=True)
 from torch import nn
 from torch.optim import SGD, lr_scheduler
