@@ -92,6 +92,7 @@ if __name__ == '__main__':
     
     # xx: step that was poked; yy: disagreement to undisturbed model
     obj = {'xx': xx, 'yy': yy, 'seed': seed, 'epochs': epochs}
+    os.makedirs('./logs', exist_ok=True)
     out_path = os.path.join('./logs/%s.pt' % uuid.uuid4())
     print('Writing logs to %s' % out_path)
     torch.save(obj, out_path)

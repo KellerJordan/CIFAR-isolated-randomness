@@ -9,7 +9,7 @@ We split the random seed into three:
 
 ## Performance
 * On a machine with 8x NVIDIA A100s, I get 400 50-epoch trainings/hour
-* The average test accuracy is 93-94%.
+* The average test accuracy is 94.10% (+/- 0.01%).
 
 ## Commands
 To do a single training:

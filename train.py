@@ -20,7 +20,7 @@ from data import get_loaders
 
 def run_training(model_seed, order_seed, aug_seed):
     ## training hyperparams and setup
-    EPOCHS = 2
+    EPOCHS = 128
     train_loader, test_loader = get_loaders(order_seed, aug_seed, epochs=EPOCHS)
 
     n_iters = len(train_loader)
